@@ -1,0 +1,141 @@
+=head1 NAME
+
+SoftLayer::API::SOAP - A Perl extension to communicate with the SoftLayer API
+
+=head1 DESCRIPTION
+
+SoftLayer::API::SOAP provides a simple method for connecting to and making calls from the SoftLayer SOAP API and provides support for many of the SoftLayer API's features.
+
+SOAP method calls and client management are handled by the L<SOAP::Lite> module with some help from L<XML::Hash::LX>. Please install both of these modules before using SoftLayer::API::SOAP. Place the SoftLayer directory this file is contained in somewhere within your system's C<@INC> path or use the C<use lib> statement to include a custom path.
+
+Follow these steps to make a SoftLayer API call:
+1) Declare a new API object by calling the C<SoftLayer::API::SOAP->new()> method. This method has one required parameter and three optional parameters:
+
+=over
+
+=item * serviceName: The name of SoftLayer API service you wish to use like 'SoftLayer_Account' or 'SoftLayer_Hardware_Server'.
+
+=item * initParameter: An optional id to initialize your API client with a specific object.
+
+=item * username: Your SoftLayer API username. You can either specify it when calling C<new()> or define it in the C<SOAP.pm> file.
+
+=item * apiKey: Your SoftLayer API key. You can either specify it when calling C<new()> or define it in the C<SOAP.pm> file.
+
+=back
+
+ my $client = SoftLayer::API::SOAP->new('SoftLayer_Account');
+ my $client = SoftLayer::API::SOAP->new('SoftLayer_Hardware_Server', $serverId, $username, $apiKey);
+
+2) Call a method from your API client object corresponding to the SoftLayee API method you wish to call, specifying parameters as needed.
+
+ my $openTickets = $client->getOpenTickets();
+
+3) Check for errors by checking the C<< ->fault >> property on your API call result. If C<< ->fault >> is set then C<< ->faultstring >> contains the error message received from the SoftLayer API. Otherwise, the result of your API call is stored in the C<< ->result >> property.
+
+ if ($openTickets->fault) {
+     echo $openTickets->faultstring;
+ } else {
+     echo 'I have tickets!';
+     print Dumper($openTickets->result);
+ }
+
+These steps can be combined on a single line:
+ my $openTickets = SoftLayer::API::SOAP->new('SoftLayer_Account')->getOpenTickets()->result;
+
+=head1 USAGE
+
+Here's a simple usage example that retrieves account information by calling the C<getObject()> method in the C<SoftLayer_Account> service:
+
+----------
+
+ # This is optional and can be removed if you already have the SoftLayer
+ # directory that contains this module in your @INC path.
+ use lib '/path/to/my/SoftLayer/directory';
+ 
+ use SoftLayer::API::SOAP;
+ use Data::Dumper;
+ 
+ # Initialize an API client for the SoftLayer_Account service.
+ my $client = SoftLayer::API::SOAP->new('SoftLayer_Account');
+ 
+ # Retrieve our account record
+ my $account = $client->getObject();
+ 
+ if ($account->fault) {
+     die 'Unable to retrieve account information: ' . $account->faultstring;
+ } else {
+     print Dumper($account->result);
+ }
+
+----------
+
+For a more complex example we'll retrieve a support ticket with id 123456 along with the ticket's updates, the user it's assigned to, the servers attached to it, and the datacenter those servers are in. We'll retrieve our extra information using a nested object mask. After we have the ticket we'll update it with the text 'Hello!'.
+
+----------
+
+ use SoftLayer::API::SOAP;
+ use Data::Dumper;
+ 
+ # Initialize an API client for ticket 123456
+ my $client = SoftLayer::API::SOAP->new('SoftLayer_Ticket', 123456);
+ 
+ # Assign an object mask to our API client.
+ $client->setObjectMask({
+     updates => '',
+     assignedUser => '',
+     attachedHardware => {
+         datacenter => ''
+     }
+ });
+ 
+ # Retrieve the ticket record
+ my $ticket = $client->getObject();
+ 
+ if ($ticket->fault) {
+     die 'Unable to retrieve ticket record: ' . $ticket->faultstring;
+ } else {
+     print Dumper($ticket->result);
+ }
+ 
+ # Update the ticket
+ my %update = {
+     entry => 'Hello!'
+ };
+ 
+ my $ticketUpdate = $client->addUpdate($update); 
+
+ if ($ticketUpdate->fault) {
+     die 'Unable to update ticket: ' . $ticketUpdate->faultstring;
+ } else {
+     print "Updated ticket 123456. The new update's id is "
+         . $ticketUpdate->result->{'id'} . '.';
+ }
+
+=head1 SEE ALSO
+
+=begin html
+The most up to date version of this library can be found on the SoftLayer github <a href="http://github.com/softlayer">public repositories</a>. Please post to the <a href="http://forums.softlayer.com/">SoftLayer forums</a> or open a support ticket in the SoftLayer customer portal if you have any questions regarding use of this library.
+=end html
+
+=head1 AUTHOR
+
+SoftLayer Technologies, E<lt>sldn@softlayer.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2010, SoftLayer Technologies, Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+=over
+
+=item * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+=item * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+=item *Neither SoftLayer Technologies, Inc. nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+=back
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+=cut
