@@ -9,6 +9,7 @@ SoftLayer::API::SOAP provides a simple method for connecting to and making calls
 SOAP method calls and client management are handled by the L<SOAP::Lite> module with some help from L<XML::Hash::LX>. Please install both of these modules before using SoftLayer::API::SOAP. Place the SoftLayer directory this file is contained in somewhere within your system's C<@INC> path or use the C<use lib> statement to include a custom path.
 
 Follow these steps to make a SoftLayer API call:
+
 1) Declare a new API object by calling the C<SoftLayer::API::SOAP->new()> method. This method has one required parameter and three optional parameters:
 
 =over
@@ -47,8 +48,6 @@ These steps can be combined on a single line:
 
 Here's a simple usage example that retrieves account information by calling the C<getObject()> method in the C<SoftLayer_Account> service:
 
-----------
-
  # This is optional and can be removed if you already have the SoftLayer
  # directory that contains this module in your @INC path.
  use lib '/path/to/my/SoftLayer/directory';
@@ -68,11 +67,7 @@ Here's a simple usage example that retrieves account information by calling the 
      print Dumper($account->result);
  }
 
-----------
-
 For a more complex example we'll retrieve a support ticket with id 123456 along with the ticket's updates, the user it's assigned to, the servers attached to it, and the datacenter those servers are in. We'll retrieve our extra information using a nested object mask. After we have the ticket we'll update it with the text 'Hello!'.
-
-----------
 
  use SoftLayer::API::SOAP;
  use Data::Dumper;
