@@ -1,4 +1,4 @@
-# Copyright (c) 2009, SoftLayer Technologies, Inc. All rights reserved.
+# Copyright (c) 2010, SoftLayer Technologies, Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -301,6 +301,7 @@ Follow these steps to make a SoftLayer API call:
  }
 
 These steps can be combined on a single line:
+
  my $openTickets = SoftLayer::API::SOAP->new('SoftLayer_Account')->getOpenTickets()->result;
 
 =head1 USAGE
@@ -375,12 +376,14 @@ For a more complex example we'll retrieve a support ticket with id 123456 along 
 =head1 SEE ALSO
 
 =begin html
+
 The most up to date version of this library can be found on the SoftLayer github <a href="http://github.com/softlayer">public repositories</a>. Please post to the <a href="http://forums.softlayer.com/">SoftLayer forums</a> or open a support ticket in the SoftLayer customer portal if you have any questions regarding use of this library.
+
 =end html
 
 =head1 AUTHOR
 
-SoftLayer Technologies, E<lt>sldn@softlayer.comE<gt>
+SoftLayer Technologies, Inc. E<lt>sldn@softlayer.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -394,7 +397,7 @@ Redistribution and use in source and binary forms, with or without modification,
 
 =item * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 
-=item *Neither SoftLayer Technologies, Inc. nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+=item * Neither SoftLayer Technologies, Inc. nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
 =back
 
