@@ -133,6 +133,8 @@ sub AUTOLOAD {
         # Set up the SOAP client first.
         my $soapEndpoint = $API_BASE_URL . $self->{serviceName};
         my $soapClient = SOAP::Lite->endpoint($soapEndpoint)->proxy($soapEndpoint);
+        my $serializer = $soapClient->serializer();
+        $serializer->register_ns($API_BASE_URL, 'slapi');
 
         # Convert the headers hash into XML and then into a SOAP::Header.
         # hash2xml seems to only want to work on the first element of a hash, so
@@ -312,16 +314,16 @@ Here's a simple usage example that retrieves account information by calling the 
  # This is optional and can be removed if you already have the SoftLayer
  # directory that contains this module in your @INC path.
  use lib '/path/to/my/SoftLayer/directory';
- 
+
  use SoftLayer::API::SOAP;
  use Data::Dumper;
- 
+
  # Initialize an API client for the SoftLayer_Account service.
  my $client = SoftLayer::API::SOAP->new('SoftLayer_Account');
- 
+
  # Retrieve our account record
  my $account = $client->getObject();
- 
+
  if ($account->fault) {
      die 'Unable to retrieve account information: ' . $account->faultstring;
  } else {
@@ -332,10 +334,10 @@ For a more complex example we'll retrieve a support ticket with id 123456 along 
 
  use SoftLayer::API::SOAP;
  use Data::Dumper;
- 
+
  # Initialize an API client for ticket 123456
  my $client = SoftLayer::API::SOAP->new('SoftLayer_Ticket', 123456);
- 
+
  # Assign an object mask to our API client.
  $client->setObjectMask({
      updates => '',
@@ -344,22 +346,22 @@ For a more complex example we'll retrieve a support ticket with id 123456 along 
          datacenter => ''
      }
  });
- 
+
  # Retrieve the ticket record
  my $ticket = $client->getObject();
- 
+
  if ($ticket->fault) {
      die 'Unable to retrieve ticket record: ' . $ticket->faultstring;
  } else {
      print Dumper($ticket->result);
  }
- 
+
  # Update the ticket
  my %update = {
      entry => 'Hello!'
  };
- 
- my $ticketUpdate = $client->addUpdate($update); 
+
+ my $ticketUpdate = $client->addUpdate($update);
 
  if ($ticketUpdate->fault) {
      die 'Unable to update ticket: ' . $ticketUpdate->faultstring;
