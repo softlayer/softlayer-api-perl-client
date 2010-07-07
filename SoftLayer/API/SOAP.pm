@@ -52,7 +52,7 @@ our @EXPORT = qw(
 
 );
 
-our $VERSION = '0.10';
+our $VERSION = '0.2';
 
 # Your SoftLayer API username. You may overide this value when calling new().
 my $API_USER = '';
@@ -62,8 +62,15 @@ my $API_USER = '';
 # to maange your API keys.
 my $API_KEY = '';
 
-# The base URL of the SoftLayer SOAP API's WSDL files.
-my $API_BASE_URL = 'http://api.service.softlayer.com/soap/v3/';
+# The base URL of the SoftLayer SOAP API's WSDL files over the public Internet.
+our $API_PUBLIC_ENDPOINT = 'https://api.softlayer.com/soap/v3/';
+
+# The base URL of the SoftLayer SOAP API's WSDL files over SoftLayer's private
+# network.
+our $API_PRIVATE_ENDPOINT = 'http://api.service.softlayer.com/soap/v3/';
+
+# The API endpoint base URL used by the client.
+my $API_BASE_URL = $SoftLayer::API::SOAP::API_PUBLIC_ENDPOINT;
 
 # Used in AUTOLOAD() for custom method handling.
 our $AUTOLOAD;
@@ -84,8 +91,11 @@ our $AUTOLOAD;
 #                built-in username.
 # $apiKey      - An optional API key if you wish to bypass the package's
 #                built-in API key.
+# $endpointUrl - The API endpoint base URL you wish to connect to. Set this to
+#                $SoftLayer::API::SOAP::API_PRIVATE_ENDPOINT to connect via
+#                SoftLayer's private network.
 sub new {
-    my ($package, $serviceName, $id, $apiUser, $apiKey) = @_;
+    my ($package, $serviceName, $id, $apiUser, $apiKey, $endpointUrl) = @_;
     my $self  = {};
 
     $self->{headers} = {opt => {}};
@@ -111,6 +121,17 @@ sub new {
 
     $self->setAuthentication($username, $key);
 
+    # Default to use the public network API endpoint, otherwise use the endpoint
+    # defined in API_PUBLIC_ENDPOINT, otherwise use the one provided by the
+    # user.
+    if ($endpointUrl ne '') {
+        $self->{endpointUrl} = $endpointUrl;
+    } elsif ($API_BASE_URL ne '') {
+        $self->{endpointUrl} = $API_BASE_URL;
+    } else {
+        $self->{endpointUrl} = $SoftLayer::API::SOAP::API_PUBLIC_ENDPOINT;
+    }
+
     # Set the init parameter if provided.
     $id = int($id); # This generates a warning if $id is undefined.
     if ($id != 0) {
@@ -131,10 +152,10 @@ sub AUTOLOAD {
     # Don't do try to make a call if we're tearing the object down.
     if ($methodName ne 'DESTROY') {
         # Set up the SOAP client first.
-        my $soapEndpoint = $API_BASE_URL . $self->{serviceName};
+        my $soapEndpoint = $self->{endpointUrl} . $self->{serviceName};
         my $soapClient = SOAP::Lite->endpoint($soapEndpoint)->proxy($soapEndpoint);
         my $serializer = $soapClient->serializer();
-        $serializer->register_ns($API_BASE_URL, 'slapi');
+        $serializer->register_ns('http://api.service.softlayer.com/soap/v3/', 'slapi');
 
         # Convert the headers hash into XML and then into a SOAP::Header.
         # hash2xml seems to only want to work on the first element of a hash, so
@@ -148,7 +169,7 @@ sub AUTOLOAD {
         my $headers = SOAP::Header->type('xml', $headersXml);
 
         # Define the method to call.
-        my $method = SOAP::Data->name($methodName);
+        my $method = SOAP::Data->name('slapi:' . $methodName);
 
         # Finally, call the method.
         return $soapClient->call($method, @_, $headers);
@@ -167,7 +188,7 @@ sub AUTOLOAD {
 # \%value - The data you wish to set in this header.
 sub setHeader {
     my($self, $name, $value) = @_;
-    $self->{headers}{opt}{$name} = $value;
+    $self->{headers}{opt}{'slapi:' . $name} = $value;
 }
 
 # Remove a SoftLayer API call header
@@ -178,7 +199,7 @@ sub setHeader {
 # $name - The name of the header you wish to remove.
 sub removeHeader {
     my($self, $name) = @_;
-    delete $self->{headers}{opt}{$name};
+    delete $self->{headers}{opt}{'slapi:' . $name};
 }
 
 # Set a user and key to authenticate a SoftLayer API call
@@ -285,6 +306,7 @@ Follow these steps to make a SoftLayer API call:
 
 =item * apiKey: Your SoftLayer API key. You can either specify it when calling C<new()> or define it in the C<SOAP.pm> file.
 
+=item * endpointUrl: An optional API endpoint URL if you do not wish to call SoftLayer's public network API endpoints. Pass the value $SoftLayer::API::SOAP::API_PRIVATE_ENDPOINT if you wish to connect to SoftLayer's private network API endpoints.
 =back
 
  my $client = SoftLayer::API::SOAP->new('SoftLayer_Account');
