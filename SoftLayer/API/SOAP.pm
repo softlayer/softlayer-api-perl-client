@@ -294,7 +294,7 @@ SOAP method calls and client management are handled by the L<SOAP::Lite> module 
 
 Follow these steps to make a SoftLayer API call:
 
-1) Declare a new API object by calling the C<SoftLayer::API::SOAP->new()> method. This method has one required parameter and three optional parameters:
+1) Declare a new API object by calling the C<SoftLayer::API::SOAP-E<gt>new()> method. This method has one required parameter and three optional parameters:
 
 =over
 
@@ -328,6 +328,8 @@ Follow these steps to make a SoftLayer API call:
 These steps can be combined on a single line:
 
  my $openTickets = SoftLayer::API::SOAP->new('SoftLayer_Account')->getOpenTickets()->result;
+
+=back
 
 =head1 USAGE
 
