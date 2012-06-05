@@ -244,17 +244,22 @@ sub setInitParameter {
 # Set an object mask to a SoftLayer API call
 #
 # Use an object mask to retrieve data related your API call's result. Object
-# masks are skeleton objects that define nested relational properties to
+# masks are skeleton objects, or strings that define nested relational properties to
 # retrieve along with an object's local properties. See
-# <http://sldn.softlayer.com/wiki/index.php/Using_Object_Masks_in_the_SoftLayer_API>
+# <http://sldn.softlayer.com/article/Using-Object-Masks-SoftLayer-API>
 # for more information.
 #
 # Parameters:
 # $mask - The object mask you wish to define
 sub setObjectMask {
     my($self, $objectMask) = @_;
+    my $header = 'SoftLayer_ObjectMask';
 
-    $self->setHeader($self->{serviceName} . 'ObjectMask', {
+    if (UNIVERSAL::isa( $objectMask, "HASH" )) {
+            $header = $self->{serviceName} . 'ObjectMask';
+        }
+
+    $self->setHeader($header, {
         'mask' => $objectMask
     });
 }
