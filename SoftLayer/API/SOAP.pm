@@ -228,7 +228,7 @@ sub setAuthentication {
 # with id number 1234, then setting an initialization parameter of 1234 in the
 # SoftLayer_Hardware_Server Service instructs the API to act on server record
 # 1234 in your method calls. See
-# <http://sldn.softlayer.com/wiki/index.php/Using_Initialization_Parameters_in_the_SoftLayer_API>
+# <http://sldn.softlayer.com/article/Using-Initialization-Parameters-in-the-SoftLayer-API>
 # for more information.
 #
 # Parameters:
@@ -269,7 +269,7 @@ sub setObjectMask {
 # Many SoftLayer API methods return a group of results. These methods
 # support a way to limit the number of results retrieved from the SoftLayer
 # API in a way akin to an SQL LIMIT statement. See
-# <http://sldn.softlayer.com/wiki/index.php/Using_Result_Limits_in_the_SoftLayer_API>
+# <http://sldn.softlayer.com/article/Using-Result-Limits-in-the-SoftLayer-API>
 # for more information.
 #
 # Parameters:
